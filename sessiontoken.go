@@ -21,26 +21,26 @@ type ConnectResponse struct {
 	Availabledatasources []string `json:"availableDataSource"`
 }
 
-func (g *Guac) Connect() (string, error) {
+func (g *Guac) Connect() error {
 	resp, err := http.PostForm(g.URI+"/api/tokens",
 		url.Values{
 			"username": {g.Username},
 			"password": {g.Password},
 		})
 	if err != nil {
-		return "", err
+		return err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return err
 	}
 	var tokenresp ConnectResponse
 
 	err = json.Unmarshal(body, &tokenresp)
 	if err != nil {
-		return "", err
+		return err
 	}
 	g.Token = tokenresp.Authoken
 	// fmt.Println(g.Token)
-	return "ok", nil
+	return nil
 }

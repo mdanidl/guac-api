@@ -12,9 +12,25 @@ func main() {
 		Username: "guacadmin",
 		Password: "guacadmin",
 	}
-	_, err := gAPI.Connect()
+	err := gAPI.Connect()
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Print(gAPI.Token)
+	fmt.Println(gAPI.Token)
+
+	conns, err := gAPI.GetConnections()
+	if err != nil {
+		fmt.Println("Err: ", err)
+	}
+	for _, x := range conns.ChildConnections {
+		fmt.Println(x.ParentIdentifier)
+		fmt.Println("--", x.Identifier, " :: ", x.Name)
+	}
+
+	for _, y := range conns.ChildGroups {
+		fmt.Println("----", y.Name)
+		for _, z := range y.ChildConnections {
+			fmt.Println("--------", z.Identifier, " :: ", z.Name)
+		}
+	}
 }
