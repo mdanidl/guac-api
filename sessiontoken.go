@@ -41,6 +41,30 @@ func (g *Guac) Connect() error {
 		return err
 	}
 	g.Token = tokenresp.Authoken
-	// fmt.Println(g.Token)
 	return nil
+}
+
+func (g *Guac) Call(m, u string, xq map[string]string) ([]byte, error) {
+	req, _ := http.NewRequest(m, g.URI+u, nil)
+
+	q := req.URL.Query()
+	q.Add("token", g.Token)
+	if len(xq) > 0 {
+		for k, v := range xq {
+			q.Add(k, v)
+		}
+	}
+	req.URL.RawQuery = q.Encode()
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return []byte{}, err
+	}
+	return body, nil
 }
