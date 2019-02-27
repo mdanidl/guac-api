@@ -2,8 +2,6 @@ package guacapi
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
 )
 
 type RootGuacConnection struct {
@@ -50,22 +48,7 @@ type GuacConnectionAttributes struct {
 }
 
 func (g *Guac) GetConnections() (RootGuacConnection, error) {
-	req, _ := http.NewRequest("GET", g.URI+"/api/session/data/mysql/connectionGroups/ROOT/tree", nil)
-
-	q := req.URL.Query()
-	q.Add("token", g.Token)
-	req.URL.RawQuery = q.Encode()
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return RootGuacConnection{}, err
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return RootGuacConnection{}, err
-	}
+	body, err := g.Call("GET", "/api/session/data/mysql/connectionGroups/ROOT/tree", map[string]string{})
 
 	var connresp RootGuacConnection
 
@@ -75,4 +58,19 @@ func (g *Guac) GetConnections() (RootGuacConnection, error) {
 	}
 
 	return connresp, err
+}
+
+// TODO
+func (g *Guac) GetConnectionsFlat() ([]GuacConnection, error) {
+	return []GuacConnection{}, nil
+}
+
+func (g *Guac) AddConnection(conn GuacConnection) (GuacConnection, error) {
+	return GuacConnection{}, nil
+}
+func (g *Guac) DeleteConnection(conn GuacConnection) (GuacConnection, error) {
+	return GuacConnection{}, nil
+}
+func (g *Guac) GetConnection(conn GuacConnection) (GuacConnection, error) {
+	return GuacConnection{}, nil
 }
