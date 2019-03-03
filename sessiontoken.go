@@ -1,13 +1,15 @@
 package guacapi
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
-// Guac blabla
 type Guac struct {
 	URI      string
 	Username string
@@ -15,10 +17,18 @@ type Guac struct {
 	Token    string
 }
 type ConnectResponse struct {
-	Authoken             string   `json:"authToken"`
+	AuthToken            string   `json:"authToken"`
 	Username             string   `json:"username"`
 	Datasource           string   `json:"dataSource"`
 	Availabledatasources []string `json:"availableDataSource"`
+}
+
+type ErrorResponse struct {
+	Message string `json:"message"`
+	// TranslatableMessage []map[string]string `json:"translatableMessage"`
+	StatusCode string `json:"statusCode"`
+	Expected   string `json:"expected"`
+	Type       string `json:"type"`
 }
 
 func (g *Guac) Connect() error {
@@ -40,13 +50,53 @@ func (g *Guac) Connect() error {
 	if err != nil {
 		return err
 	}
-	g.Token = tokenresp.Authoken
+	g.Token = tokenresp.AuthToken
 	return nil
 }
 
-func (g *Guac) Call(m, u string, xq map[string]string) ([]byte, error) {
-	req, _ := http.NewRequest(m, g.URI+u, nil)
+func (g *Guac) RefreshToken() error {
+	resp, err := http.PostForm(g.URI+"/api/tokens",
+		url.Values{
+			"token": {g.Token},
+		})
+	if err != nil {
+		return err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var tokenresp ConnectResponse
 
+	err = json.Unmarshal(body, &tokenresp)
+	if err != nil {
+		return err
+	}
+	g.Token = tokenresp.AuthToken
+	return nil
+}
+
+func (g *Guac) Call(m, u string, xq map[string]string, b interface{}) ([]byte, error) {
+	err := g.RefreshToken()
+	if err != nil {
+		return nil, err
+	}
+
+	body_byte, err := json.Marshal(b)
+	if err != nil {
+		return []byte{}, err
+	}
+	// fmt.Println("Request: ", string(body_byte))
+	body_reader := bytes.NewReader(body_byte)
+	req, err := http.NewRequest(m, g.URI+u, body_reader)
+	if err != nil {
+		return []byte{}, err
+	}
+	// http headers
+
+	req.Header.Set("Content-Type", "application/json")
+
+	// URL query params
 	q := req.URL.Query()
 	q.Add("token", g.Token)
 	if len(xq) > 0 {
@@ -61,10 +111,22 @@ func (g *Guac) Call(m, u string, xq map[string]string) ([]byte, error) {
 	if err != nil {
 		return []byte{}, err
 	}
+	if !(resp.StatusCode == 200 || resp.StatusCode == 204) {
+		// fmt.Println(resp.StatusCode)
+		errbody, _ := ioutil.ReadAll(resp.Body)
+		errmsg := ErrorResponse{}
+		umerr := json.Unmarshal(errbody, &errmsg)
+		if umerr != nil {
+			return nil, errors.New("JSON Unmarshal error")
+		}
+		msg := strconv.Itoa(resp.StatusCode) + "-" + errmsg.Type + ": " + errmsg.Message
+		e := errors.New(msg)
+		return nil, e
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 	return body, nil
 }
