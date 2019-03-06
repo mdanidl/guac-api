@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	guac "github.com/mdanidl/guac-api"
+	"github.com/mdanidl/guac-api/types"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 
 	// Retrieving all connections preserving the group hierarchy
 
-	// conns, err := gAPI.GetAllConnections()
+	// conns, err := gAPI.GetConnectionTree()
 	// if err != nil {
 	// 	fmt.Println("Err: ", err)
 	// }
@@ -51,20 +52,33 @@ func main() {
 
 	// Adding new connection to the list
 
-	// newconn := guac.GuacConnection{
+	// newconn := types.GuacConnection{
 	// 	Name:             "random2",
 	// 	ParentIdentifier: "ROOT",
 	// 	Protocol:         "vnc",
 	// }
-	// _, err = gAPI.AddConnection(&newconn)
+	// _, err = gAPI.CreateConnection(&newconn)
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
 	//------------------------
 
+	// reading a single connection
+
+	newconn := types.GuacConnection{
+		Identifier: "15",
+	}
+	connection, err := gAPI.ReadConnection(&newconn)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(connection.Identifier + " :: " + connection.Name)
+	}
+	//------------------------
+
 	// Deleting a single connection
 
-	// conn_to_delete := guac.GuacConnection{
+	// conn_to_delete := types.GuacConnection{
 	// 	Name:       "vmiasd",
 	// 	Identifier: "9",
 	// }
