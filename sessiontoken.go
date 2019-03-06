@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+
+	. "github.com/mdanidl/guac-api/types"
 )
 
 type Guac struct {
@@ -15,20 +17,6 @@ type Guac struct {
 	Username string
 	Password string
 	Token    string
-}
-type ConnectResponse struct {
-	AuthToken            string   `json:"authToken"`
-	Username             string   `json:"username"`
-	Datasource           string   `json:"dataSource"`
-	Availabledatasources []string `json:"availableDataSource"`
-}
-
-type ErrorResponse struct {
-	Message string `json:"message"`
-	// TranslatableMessage []map[string]string `json:"translatableMessage"`
-	StatusCode string `json:"statusCode"`
-	Expected   string `json:"expected"`
-	Type       string `json:"type"`
 }
 
 func (g *Guac) Connect() error {
