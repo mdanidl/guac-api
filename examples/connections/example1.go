@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	guac "github.com/mdanidl/guac-api"
-	"github.com/mdanidl/guac-api/types"
 )
 
 func main() {
@@ -40,14 +39,14 @@ func main() {
 
 	// Retrieving all connections into a flat slice
 
-	// conns, err := gAPI.GetAllConnectionsFlat()
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+	conns, err := gAPI.ListConnections()
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	// for _, c := range conns {
-	// 	fmt.Println("Parent: " + c.ParentIdentifier + " - " + "Name: " + c.Name)
-	// }
+	for _, c := range conns {
+		fmt.Println("Parent: " + c.ParentIdentifier + " - " + "Name: " + c.Name)
+	}
 	//------------------------
 
 	// Adding new connection to the list
@@ -65,15 +64,15 @@ func main() {
 
 	// reading a single connection
 
-	newconn := types.GuacConnection{
-		Identifier: "15",
-	}
-	connection, err := gAPI.ReadConnection(&newconn)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(connection.Identifier + " :: " + connection.Name)
-	}
+	// newconn := types.GuacConnection{
+	// 	Identifier: "15",
+	// }
+	// connection, err := gAPI.ReadConnection(&newconn)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// } else {
+	// 	fmt.Println(connection.Identifier + " :: " + connection.Name)
+	// }
 	//------------------------
 
 	// Deleting a single connection
