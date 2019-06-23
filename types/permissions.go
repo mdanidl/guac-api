@@ -1,27 +1,19 @@
 package types
 
-import "errors"
-
-type PermissionItem struct {
+// GuacPermissionItem a
+type GuacPermissionItem struct {
 	Op    string `json:"op"`
 	Path  string `json:"path"`
 	Value string `json:"value"`
 }
 
-type PermissionBlock struct {
-	PermissionItems []PermissionItem
-}
-
-func (p *PermissionBlock) Add(i PermissionItem) {
-	p.PermissionItems = append(p.PermissionItems, i)
-}
-func (p *PermissionBlock) List() ([]PermissionItem, error) {
-	EmptyPermissionBlock := errors.New("No Permissions in the block")
-
-	if len(p.PermissionItems) > 0 {
-		return p.PermissionItems, nil
-	} else {
-		return nil, EmptyPermissionBlock
-	}
-
+// GuacPermissionData a
+type GuacPermissionData struct {
+	ConnectionPermissions       map[string][]string `json:"connectionPermissions"`
+	ConnectionGroupPermissions  map[string][]string `json:"connectionGroupPermissions"`
+	SharingProfilePermissions   map[string][]string `json:"sharingProfilePermissions"`
+	UserPermissions             map[string][]string `json:"userPermissions"`
+	UserGroupPermissions        map[string][]string `json:"userGroupPermissions"`
+	SystemPermissions           []string            `json:"systemPermissions"`
+	ActiveConnectionPermissions map[string][]string `json:"activeConnectionPermissions"`
 }

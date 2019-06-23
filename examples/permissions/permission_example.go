@@ -22,54 +22,22 @@ func main() {
 		fmt.Println(err)
 	}
 
+	// READ User ConnectionPermissions
+
+	resp, err := gAPI.GetUserConnectionPermissions("tf-test-1")
+	if err != nil {
+		fmt.Println("fuck", err)
+	}
+	fmt.Println(resp)
+
 	// UPDATE Permissions
 
-	perm := []PermissionItem{}
-	perm = append(perm,PermissionItem{
-		Op: "add",
-		Path: "/connections/1",
-		Value: "READ"
-	})
+	// items := []GuacPermissionItem{}
+	// items = append(items, GuacPermissionItem{
+	// 	Op:    "add",
+	// 	Path:  "/connectionPermissions/19",
+	// 	Value: "READ",
+	// })
+	// _ = gAPI.SendUserConnectionPermissionChanges("username", items)
 
-	// update_user_group := GuacUserGroup{
-	// 	Identifier: "Daniels-group",
-	// 	Attributes: GuacUserGroupAttributes{
-	// 		Disabled: "true",
-	// 	},
-	// }
-	// err = gAPI.UpdateUserGroup(&update_user_group)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// } else {
-	// 	fmt.Println("Updated. Re-reading info: ")
-	// 	update_reread_resp, err := gAPI.ReadUserGroup(&update_user_group)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	} else {
-	// 		fmt.Println(update_reread_resp.Attributes.Disabled)
-	// 	}
-	// }
-
-	// DELETE UserGroup
-
-	// delete_user_group := GuacUserGroup{
-	// 	Identifier: "Daniels-group",
-	// }
-
-	// err = gAPI.DeleteUserGroup(&delete_user_group)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// } else {
-	// 	fmt.Println("Ok")
-	// }
-
-	// LIST User Groups
-	// groups_resp, err := gAPI.ListUserGroups()
-	// if err != nil {
-	// 	fmt.Println(err)
-	// } else {
-	// 	for _, g := range groups_resp {
-	// 		fmt.Println(g.Identifier)
-	// 	}
-	// }
 }

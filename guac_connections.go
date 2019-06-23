@@ -3,6 +3,8 @@ package guacapi
 import (
 	"encoding/json"
 
+	"github.com/imdario/mergo"
+
 	. "github.com/mdanidl/guac-api/types"
 )
 
@@ -18,16 +20,34 @@ func (g *Guac) CreateConnection(conn *GuacConnection) (GuacConnection, error) {
 
 func (g *Guac) ReadConnection(conn *GuacConnection) (GuacConnection, error) {
 	ret := GuacConnection{}
-	resp, err := g.Call("GET", "/api/session/data/mysql/connections/"+conn.Identifier, nil, nil)
+	retParams := GuacConnectionParameters{}
+
+	connData, err := g.Call("GET", "/api/session/data/mysql/connections/"+conn.Identifier, nil, nil)
 	if err != nil {
 		return GuacConnection{}, err
 	}
-	err = json.Unmarshal(resp, &ret)
+	err = json.Unmarshal(connData, &ret)
+
+	connParams, err := g.Call("GET", "/api/session/data/mysql/connections/"+conn.Identifier+"/parameters", nil, nil)
+	if err != nil {
+		return GuacConnection{}, err
+	}
+	err = json.Unmarshal(connParams, &retParams)
+	if err != nil {
+		return GuacConnection{}, err
+	}
+	ret2 := GuacConnection{
+		Properties: retParams,
+	}
+	err = mergo.Merge(&ret, &ret2)
+	if err != nil {
+		return GuacConnection{}, err
+	}
 	return ret, nil
 }
 
 func (g *Guac) UpdateConnection(conn *GuacConnection) error {
-	_, err := g.Call("PUT", "/api/session/data/mysql/connections", nil, conn)
+	_, err := g.Call("PUT", "/api/session/data/mysql/connections/"+conn.Identifier, nil, conn)
 	if err != nil {
 		return err
 	}
