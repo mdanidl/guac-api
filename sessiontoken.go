@@ -1,4 +1,4 @@
-package guacapi
+package guacamole
 
 import (
 	"bytes"
