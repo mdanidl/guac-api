@@ -8,6 +8,7 @@ type GuacConnection struct {
 	Attributes        GuacConnectionAttributes `json:"attributes"`
 	Properties        GuacConnectionParameters `json:"parameters"`
 	ActiveConnections int                      `json:"activeConnections,omitempty"`
+	LastActive        int                      `json:"lastActive,omitempty"`
 }
 
 type GuacConnectionAttributes struct {
