@@ -1,4 +1,4 @@
-package types
+package guacamole
 
 // GuacPermissionItem a
 type GuacPermissionItem struct {

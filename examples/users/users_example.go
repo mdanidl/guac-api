@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	guac "github.com/mdanidl/guac-api"
-	. "github.com/mdanidl/guac-api/types"
 )
 
 func main() {
@@ -65,7 +64,7 @@ func main() {
 
 	// DELETE User
 
-	delete_user := GuacUser{
+	delete_user := guac.GuacUser{
 		Username: "Daniel2",
 	}
 

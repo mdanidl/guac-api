@@ -3,11 +3,13 @@ package guacamole
 import (
 	"encoding/json"
 
-	. "github.com/mdanidl/guac-api/types"
 )
 
 func (g *Guac) GetConnectionTree() (GuacConnectionGroup, error) {
 	body, err := g.Call("GET", "/api/session/data/mysql/connectionGroups/ROOT/tree", nil, nil)
+	if err != nil {
+		return GuacConnectionGroup{}, err
+	}
 
 	var connresp GuacConnectionGroup
 
@@ -29,17 +31,11 @@ func flatten(nested []GuacConnectionGroup) ([]GuacConnection, []GuacConnectionGr
 			if err != nil {
 				return nil, nil, err
 			}
-			for _, c := range conns {
-				flat_conns = append(flat_conns, c)
-			}
-			for _, g := range subgrps {
-				flat_grps = append(flat_grps, g)
-			}
+			flat_conns = append(flat_conns, conns...)
+			flat_grps = append(flat_grps, subgrps...)
 		}
 		if len(groups.ChildConnections) > 0 {
-			for _, c := range groups.ChildConnections {
-				flat_conns = append(flat_conns, c)
-			}
+			flat_conns = append(flat_conns, groups.ChildConnections...)
 		}
 	}
 	return flat_conns, flat_grps, nil
@@ -102,9 +98,10 @@ func (g *Guac) ListConnectionGroups() ([]GuacConnectionGroup, error) {
 	}
 
 	_, flattened_grps, err := flatten([]GuacConnectionGroup{conn_tree})
-	for _, grps_from_grps := range flattened_grps {
-		ret = append(ret, grps_from_grps)
+	if err != nil {
+		return []GuacConnectionGroup{}, err
 	}
+	ret = append(ret, flattened_grps...)
 
 	return ret, nil
 }

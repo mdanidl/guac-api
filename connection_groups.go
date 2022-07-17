@@ -1,4 +1,4 @@
-package types
+package guacamole
 
 type GuacConnectionGroup struct {
 	Name              string                        `json:"name"`

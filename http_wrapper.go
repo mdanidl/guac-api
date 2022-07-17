@@ -1,4 +1,4 @@
-package types
+package guacamole
 
 type ConnectResponse struct {
 	AuthToken            string   `json:"authToken"`

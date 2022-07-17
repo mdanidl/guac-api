@@ -3,7 +3,6 @@ package guacamole
 import (
 	"encoding/json"
 
-	. "github.com/mdanidl/guac-api/types"
 )
 
 func (g *Guac) CreateUserGroup(group *GuacUserGroup) (GuacUserGroup, error) {
@@ -13,6 +12,9 @@ func (g *Guac) CreateUserGroup(group *GuacUserGroup) (GuacUserGroup, error) {
 		return ret, err
 	}
 	err = json.Unmarshal(resp, &ret)
+	if err != nil {
+		return GuacUserGroup{}, err
+	}
 	return ret, nil
 }
 
@@ -23,6 +25,9 @@ func (g *Guac) ReadUserGroup(group *GuacUserGroup) (GuacUserGroup, error) {
 		return GuacUserGroup{}, err
 	}
 	err = json.Unmarshal(resp, &ret)
+	if err != nil {
+		return GuacUserGroup{}, err
+	}
 	return ret, nil
 }
 
@@ -46,13 +51,15 @@ func (g *Guac) ListUserGroups() ([]GuacUserGroup, error) {
 	ret := []GuacUserGroup{}
 	marshalledResponse := map[string]GuacUserGroup{}
 	grp_tree, err := g.Call("GET", "/api/session/data/mysql/userGroups", nil, nil)
+	if err != nil {
+		return []GuacUserGroup{}, err
+	}
 	err = json.Unmarshal(grp_tree, &marshalledResponse)
 	if err != nil {
 		return []GuacUserGroup{}, err
-	} else {
-		for _, datablock := range marshalledResponse {
-			ret = append(ret, datablock)
-		}
+	}
+	for _, datablock := range marshalledResponse {
+		ret = append(ret, datablock)
 	}
 	return ret, nil
 }

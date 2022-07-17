@@ -5,7 +5,6 @@ import (
 
 	"github.com/imdario/mergo"
 
-	. "github.com/mdanidl/guac-api/types"
 )
 
 func (g *Guac) CreateConnection(conn *GuacConnection) (GuacConnection, error) {
@@ -15,6 +14,9 @@ func (g *Guac) CreateConnection(conn *GuacConnection) (GuacConnection, error) {
 		return ret, err
 	}
 	err = json.Unmarshal(resp, &ret)
+	if err != nil {
+		return GuacConnection{}, err
+	}
 	return ret, nil
 }
 
@@ -27,6 +29,9 @@ func (g *Guac) ReadConnection(conn *GuacConnection) (GuacConnection, error) {
 		return GuacConnection{}, err
 	}
 	err = json.Unmarshal(connData, &ret)
+	if err != nil {
+		return GuacConnection{}, err
+	}
 
 	connParams, err := g.Call("GET", "/api/session/data/mysql/connections/"+conn.Identifier+"/parameters", nil, nil)
 	if err != nil {
@@ -70,14 +75,13 @@ func (g *Guac) ListConnections() ([]GuacConnection, error) {
 		return []GuacConnection{}, err
 	}
 
-	for _, root_conns := range conn_tree.ChildConnections {
-		ret = append(ret, root_conns)
-	}
+	ret = append(ret, conn_tree.ChildConnections...)
 
 	flat_conns_from_groups, _, err := flatten(conn_tree.ChildGroups)
-	for _, conns_from_grps := range flat_conns_from_groups {
-		ret = append(ret, conns_from_grps)
+	if err != nil {
+		return []GuacConnection{}, err
 	}
+	ret = append(ret, flat_conns_from_groups...)
 
 	return ret, nil
 }

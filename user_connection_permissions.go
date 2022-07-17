@@ -2,8 +2,6 @@ package guacamole
 
 import (
 	"encoding/json"
-
-	. "github.com/mdanidl/guac-api/types"
 )
 
 func (g *Guac) SendUserConnectionPermissionChanges(user string, p []GuacPermissionItem) error {

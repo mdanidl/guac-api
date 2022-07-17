@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"strconv"
 
-	. "github.com/mdanidl/guac-api/types"
 )
 
 type Guac struct {

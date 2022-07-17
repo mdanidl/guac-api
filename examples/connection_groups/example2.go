@@ -4,12 +4,11 @@ import (
 	"fmt"
 
 	guac "github.com/mdanidl/guac-api"
-	. "github.com/mdanidl/guac-api/types"
 )
 
 func main() {
 	// Keeping the types import in
-	_ = GuacConnection{}
+	_ = guac.GuacConnection{}
 
 	// Initialise the Connection to guacamole using the built-in authentication mechanism
 	gAPI := guac.Guac{
