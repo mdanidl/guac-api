@@ -6,7 +6,7 @@ import (
 )
 
 func (g *Guac) GetConnectionTree() (GuacConnectionGroup, error) {
-	body, err := g.Call("GET", "/api/session/data/mysql/connectionGroups/ROOT/tree", nil, nil)
+	body, err := g.Call("GET", "/api/session/data/{{ .Datasource }}/connectionGroups/ROOT/tree", nil, nil)
 	if err != nil {
 		return GuacConnectionGroup{}, err
 	}
@@ -43,7 +43,7 @@ func flatten(nested []GuacConnectionGroup) ([]GuacConnection, []GuacConnectionGr
 
 func (g *Guac) CreateConnectionGroup(conn *GuacConnectionGroup) (GuacConnectionGroup, error) {
 	ret := GuacConnectionGroup{}
-	resp, err := g.Call("POST", "/api/session/data/mysql/connectionGroups", nil, conn)
+	resp, err := g.Call("POST", "/api/session/data/{{ .Datasource }}/connectionGroups", nil, conn)
 	if err != nil {
 		return GuacConnectionGroup{}, err
 	}
@@ -57,7 +57,7 @@ func (g *Guac) CreateConnectionGroup(conn *GuacConnectionGroup) (GuacConnectionG
 
 func (g *Guac) ReadConnectionGroup(conn *GuacConnectionGroup) (GuacConnectionGroup, error) {
 	ret := GuacConnectionGroup{}
-	resp, err := g.Call("GET", "/api/session/data/mysql/connectionGroups/"+conn.Identifier, nil, nil)
+	resp, err := g.Call("GET", "/api/session/data/{{ .Datasource }}/connectionGroups/"+conn.Identifier, nil, nil)
 	if err != nil {
 		return GuacConnectionGroup{}, err
 	}
@@ -71,7 +71,7 @@ func (g *Guac) ReadConnectionGroup(conn *GuacConnectionGroup) (GuacConnectionGro
 }
 
 func (g *Guac) UpdateConnectionGroup(conn *GuacConnectionGroup) error {
-	_, err := g.Call("PUT", "/api/session/data/mysql/connectionGroups/"+conn.Identifier, nil, conn)
+	_, err := g.Call("PUT", "/api/session/data/{{ .Datasource }}/connectionGroups/"+conn.Identifier, nil, conn)
 	if err != nil {
 		return err
 	} else {
@@ -81,7 +81,7 @@ func (g *Guac) UpdateConnectionGroup(conn *GuacConnectionGroup) error {
 }
 
 func (g *Guac) DeleteConnectionGroup(conn *GuacConnectionGroup) error {
-	_, err := g.Call("DELETE", "/api/session/data/mysql/connectionGroups/"+conn.Identifier, nil, conn)
+	_, err := g.Call("DELETE", "/api/session/data/{{ .Datasource }}/connectionGroups/"+conn.Identifier, nil, conn)
 	if err != nil {
 		return err
 	} else {

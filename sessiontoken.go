@@ -8,15 +8,20 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-
+	"text/template"
 )
 
 type Guac struct {
-	URI      string
-	Username string
-	Password string
-	Token    string
+	URI        string
+	Username   string
+	Password   string
+	Token      string
+	Datasource string
 }
+
+var (
+	callTemplate = template.New("call")
+)
 
 func (g *Guac) Connect() error {
 	resp, err := http.PostForm(g.URI+"/api/tokens",
@@ -38,6 +43,7 @@ func (g *Guac) Connect() error {
 		return err
 	}
 	g.Token = tokenresp.AuthToken
+	g.Datasource = tokenresp.Datasource
 	return nil
 }
 
@@ -64,7 +70,20 @@ func (g *Guac) RefreshToken() error {
 }
 
 func (g *Guac) Call(m, u string, xq map[string]string, b interface{}) ([]byte, error) {
-	err := g.RefreshToken()
+	ut, err := callTemplate.Parse(u)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+
+	err = ut.Execute(&buf, xq)
+	if err != nil {
+		return nil, err
+	}
+	u = buf.String()
+
+	err = g.RefreshToken()
 	if err != nil {
 		return nil, err
 	}
@@ -115,5 +134,6 @@ func (g *Guac) Call(m, u string, xq map[string]string, b interface{}) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
+
 	return body, nil
 }

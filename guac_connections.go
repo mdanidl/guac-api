@@ -9,7 +9,7 @@ import (
 
 func (g *Guac) CreateConnection(conn *GuacConnection) (GuacConnection, error) {
 	ret := GuacConnection{}
-	resp, err := g.Call("POST", "/api/session/data/mysql/connections", nil, conn)
+	resp, err := g.Call("POST", "/api/session/data/{{ .Datasource }}/connections", nil, conn)
 	if err != nil {
 		return ret, err
 	}
@@ -24,7 +24,7 @@ func (g *Guac) ReadConnection(conn *GuacConnection) (GuacConnection, error) {
 	ret := GuacConnection{}
 	retParams := GuacConnectionParameters{}
 
-	connData, err := g.Call("GET", "/api/session/data/mysql/connections/"+conn.Identifier, nil, nil)
+	connData, err := g.Call("GET", "/api/session/data/{{ .Datasource }}/connections/"+conn.Identifier, nil, nil)
 	if err != nil {
 		return GuacConnection{}, err
 	}
@@ -33,7 +33,7 @@ func (g *Guac) ReadConnection(conn *GuacConnection) (GuacConnection, error) {
 		return GuacConnection{}, err
 	}
 
-	connParams, err := g.Call("GET", "/api/session/data/mysql/connections/"+conn.Identifier+"/parameters", nil, nil)
+	connParams, err := g.Call("GET", "/api/session/data/{{ .Datasource }}/connections/"+conn.Identifier+"/parameters", nil, nil)
 	if err != nil {
 		return GuacConnection{}, err
 	}
@@ -52,7 +52,7 @@ func (g *Guac) ReadConnection(conn *GuacConnection) (GuacConnection, error) {
 }
 
 func (g *Guac) UpdateConnection(conn *GuacConnection) error {
-	_, err := g.Call("PUT", "/api/session/data/mysql/connections/"+conn.Identifier, nil, conn)
+	_, err := g.Call("PUT", "/api/session/data/{{ .Datasource }}/connections/"+conn.Identifier, nil, conn)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (g *Guac) UpdateConnection(conn *GuacConnection) error {
 }
 
 func (g *Guac) DeleteConnection(conn *GuacConnection) error {
-	_, err := g.Call("DELETE", "/api/session/data/mysql/connections/"+conn.Identifier, nil, nil)
+	_, err := g.Call("DELETE", "/api/session/data/{{ .Datasource }}/connections/"+conn.Identifier, nil, nil)
 	if err != nil {
 		return err
 	}
