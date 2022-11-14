@@ -79,6 +79,9 @@ func (g *Guac) Call(m, u string, xq map[string]string, b interface{}) ([]byte, e
 
 	// do this as for some reason arguments are "supposed" to be filled in from some string array
 	// but actually just aren't, so we check over the values we need and fill them in from the known source.
+	if len(xq) == 0 {
+		xq = make(map[string]string)
+	}
 	for env, val := range map[string]*string{
 		"Datasource": &g.Datasource,
 	} {
