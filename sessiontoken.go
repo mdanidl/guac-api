@@ -77,6 +77,16 @@ func (g *Guac) Call(m, u string, xq map[string]string, b interface{}) ([]byte, e
 
 	var buf bytes.Buffer
 
+	// do this as for some reason arguments are "supposed" to be filled in from some string array
+	// but actually just aren't, so we check over the values we need and fill them in from the known source.
+	for env, val := range map[string]*string{
+		"Datasource": &g.Datasource,
+	} {
+		if _, ok := xq[env]; !ok {
+			xq[env] = *val
+		}
+	}
+
 	err = ut.Execute(&buf, xq)
 	if err != nil {
 		return nil, err
