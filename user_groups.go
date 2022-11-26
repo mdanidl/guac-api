@@ -1,4 +1,4 @@
-package types
+package guacamole
 
 type GuacUserGroup struct {
 	Identifier string                  `json:"identifier"`

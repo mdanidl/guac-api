@@ -3,11 +3,13 @@ package guacamole
 import (
 	"encoding/json"
 
-	. "github.com/mdanidl/guac-api/types"
 )
 
 func (g *Guac) GetConnectionTree() (GuacConnectionGroup, error) {
-	body, err := g.Call("GET", "/api/session/data/mysql/connectionGroups/ROOT/tree", nil, nil)
+	body, err := g.Call("GET", "/api/session/data/{{ .Datasource }}/connectionGroups/ROOT/tree", nil, nil)
+	if err != nil {
+		return GuacConnectionGroup{}, err
+	}
 
 	var connresp GuacConnectionGroup
 
@@ -29,17 +31,11 @@ func flatten(nested []GuacConnectionGroup) ([]GuacConnection, []GuacConnectionGr
 			if err != nil {
 				return nil, nil, err
 			}
-			for _, c := range conns {
-				flat_conns = append(flat_conns, c)
-			}
-			for _, g := range subgrps {
-				flat_grps = append(flat_grps, g)
-			}
+			flat_conns = append(flat_conns, conns...)
+			flat_grps = append(flat_grps, subgrps...)
 		}
 		if len(groups.ChildConnections) > 0 {
-			for _, c := range groups.ChildConnections {
-				flat_conns = append(flat_conns, c)
-			}
+			flat_conns = append(flat_conns, groups.ChildConnections...)
 		}
 	}
 	return flat_conns, flat_grps, nil
@@ -47,7 +43,7 @@ func flatten(nested []GuacConnectionGroup) ([]GuacConnection, []GuacConnectionGr
 
 func (g *Guac) CreateConnectionGroup(conn *GuacConnectionGroup) (GuacConnectionGroup, error) {
 	ret := GuacConnectionGroup{}
-	resp, err := g.Call("POST", "/api/session/data/mysql/connectionGroups", nil, conn)
+	resp, err := g.Call("POST", "/api/session/data/{{ .Datasource }}/connectionGroups", nil, conn)
 	if err != nil {
 		return GuacConnectionGroup{}, err
 	}
@@ -61,7 +57,7 @@ func (g *Guac) CreateConnectionGroup(conn *GuacConnectionGroup) (GuacConnectionG
 
 func (g *Guac) ReadConnectionGroup(conn *GuacConnectionGroup) (GuacConnectionGroup, error) {
 	ret := GuacConnectionGroup{}
-	resp, err := g.Call("GET", "/api/session/data/mysql/connectionGroups/"+conn.Identifier, nil, nil)
+	resp, err := g.Call("GET", "/api/session/data/{{ .Datasource }}/connectionGroups/"+conn.Identifier, nil, nil)
 	if err != nil {
 		return GuacConnectionGroup{}, err
 	}
@@ -75,7 +71,7 @@ func (g *Guac) ReadConnectionGroup(conn *GuacConnectionGroup) (GuacConnectionGro
 }
 
 func (g *Guac) UpdateConnectionGroup(conn *GuacConnectionGroup) error {
-	_, err := g.Call("PUT", "/api/session/data/mysql/connectionGroups/"+conn.Identifier, nil, conn)
+	_, err := g.Call("PUT", "/api/session/data/{{ .Datasource }}/connectionGroups/"+conn.Identifier, nil, conn)
 	if err != nil {
 		return err
 	} else {
@@ -85,7 +81,7 @@ func (g *Guac) UpdateConnectionGroup(conn *GuacConnectionGroup) error {
 }
 
 func (g *Guac) DeleteConnectionGroup(conn *GuacConnectionGroup) error {
-	_, err := g.Call("DELETE", "/api/session/data/mysql/connectionGroups/"+conn.Identifier, nil, conn)
+	_, err := g.Call("DELETE", "/api/session/data/{{ .Datasource }}/connectionGroups/"+conn.Identifier, nil, conn)
 	if err != nil {
 		return err
 	} else {
@@ -102,9 +98,10 @@ func (g *Guac) ListConnectionGroups() ([]GuacConnectionGroup, error) {
 	}
 
 	_, flattened_grps, err := flatten([]GuacConnectionGroup{conn_tree})
-	for _, grps_from_grps := range flattened_grps {
-		ret = append(ret, grps_from_grps)
+	if err != nil {
+		return []GuacConnectionGroup{}, err
 	}
+	ret = append(ret, flattened_grps...)
 
 	return ret, nil
 }

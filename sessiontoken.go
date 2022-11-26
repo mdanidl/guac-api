@@ -8,16 +8,20 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-
-	. "github.com/mdanidl/guac-api/types"
+	"text/template"
 )
 
 type Guac struct {
-	URI      string
-	Username string
-	Password string
-	Token    string
+	URI        string
+	Username   string
+	Password   string
+	Token      string
+	Datasource string
 }
+
+var (
+	callTemplate = template.New("call")
+)
 
 func (g *Guac) Connect() error {
 	resp, err := http.PostForm(g.URI+"/api/tokens",
@@ -39,6 +43,7 @@ func (g *Guac) Connect() error {
 		return err
 	}
 	g.Token = tokenresp.AuthToken
+	g.Datasource = tokenresp.Datasource
 	return nil
 }
 
@@ -65,7 +70,33 @@ func (g *Guac) RefreshToken() error {
 }
 
 func (g *Guac) Call(m, u string, xq map[string]string, b interface{}) ([]byte, error) {
-	err := g.RefreshToken()
+	ut, err := callTemplate.Parse(u)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+
+	// do this as for some reason arguments are "supposed" to be filled in from some string array
+	// but actually just aren't, so we check over the values we need and fill them in from the known source.
+	if len(xq) == 0 || xq == nil {
+		xq = make(map[string]string)
+	}
+	for env, val := range map[string]string{
+		"Datasource": g.Datasource,
+	} {
+		if _, ok := xq[env]; !ok {
+			xq[env] = val
+		}
+	}
+
+	err = ut.Execute(&buf, xq)
+	if err != nil {
+		return nil, err
+	}
+	u = buf.String()
+
+	err = g.RefreshToken()
 	if err != nil {
 		return nil, err
 	}
@@ -116,5 +147,6 @@ func (g *Guac) Call(m, u string, xq map[string]string, b interface{}) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
+
 	return body, nil
 }

@@ -4,12 +4,11 @@ import (
 	"fmt"
 
 	guac "github.com/mdanidl/guac-api"
-	. "github.com/mdanidl/guac-api/types"
 )
 
 func main() {
 	// This is just a null declaration, so linter won't complain about the types package
-	_ = GuacUserGroup{}
+	_ = guac.GuacUserGroup{}
 
 	// Initialise the Connection to guacamole using the built-in authentication mechanism
 	gAPI := guac.Guac{
